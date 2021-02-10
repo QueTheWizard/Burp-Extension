@@ -6,10 +6,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.net.URL;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.*;
 
 public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
@@ -88,6 +89,7 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
                     }
                 });
 
+                // Test - JPanel from other class file
                 JComponent asd = new TestPanel();
                 keyHacksPanel.add(asd);
                 // customize our UI components
@@ -131,248 +133,302 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
     //
     @Override
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse baseRequestResponse) {
-        String parametersFromTextAreaActive[] = parametersTextArea.getText().split("\\n");
-        for (int i = 0; i < parametersFromTextAreaActive.length; i = i + 1) {
-            if (this.helpers.analyzeRequest(baseRequestResponse).getMethod().equals("GET")) {
-                List responseArray = this.helpers.analyzeResponse(baseRequestResponse.getResponse()).getHeaders();
-                Iterator headerItr = responseArray.iterator();
-                while (headerItr.hasNext()) {
-                    String header = headerItr.next().toString();
-                    if (header.contains("Content-Type:")) {
-                        if ((header.contains("json")) || (header.contains("javascript"))) {
-                            List parameters = this.helpers.analyzeRequest(baseRequestResponse).getParameters();
-                            Iterator parameterItr = parameters.iterator();
-                            while (parameterItr.hasNext()) {
-                                IParameter parameter = (IParameter) parameterItr.next();
-                                if (parameter.getName().contains(parametersFromTextAreaActive[i])) {
-                                    List issues = new ArrayList(1);
-                                    issues.add(new CustomScanIssue(baseRequestResponse
-                                            .getHttpService(), this.helpers
-                                            .analyzeRequest(baseRequestResponse)
-                                            .getUrl(), new IHttpRequestResponse[0], "Potential RFD Issue Detected", "A parameter named " + parametersFromTextAreaActive[i] + " is detected, this is a potential reflected file download issue, please check this url manually " + this.helpers
-                                            .analyzeRequest(baseRequestResponse)
-                                            .getUrl()
-                                            + "<br><br><b>Issue Definition</b><br><br>"
-                                            + "\"Reflected File Download(RFD) is a web attack vector that enables attackers to gain"
-                                            + " complete control over a victim ’s machine."
-                                            + "In an RFD attack, the user follows a malicious link to a trusted domain resulting in a file download from that domain."
-                                            + "computer.\""
-                                            + "<br><I>Oren Hafif</I>"
-                                            + "<br><br><b>Notes</b><br><br>"
-                                            + "\"In the absence of a filename attribute returned within a Content-Disposition "
-                                            + "response header, browsers are forced to determine the name of a downloaded file "
-                                            + "based on the URL (from the address bar). An attacker can tamper with the \"Path\" "
-                                            + "portion of the URL (between the domain name and the question mark sign \"?\") to "
-                                            + "set malicious extensions for downloads.\""
-                                            + "<br><I>Oren Hafif</I>"
-                                            + "<br><br>Sample URL: <br>https://example.com/api;/setup.bat;/setup.bat<br>"
-                                            + "<br>Sample HTML code using download attribute:<br>&#x3c;&#x61;&#x20;&#x64;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x68;&#x72;&#x65;&#x66;&#x3d;&#x22;&#x68;&#x74;&#x74;&#x70;&#x73;&#x3a;&#x2f;&#x2f;&#x65;&#x78;&#x61;&#x6d;&#x70;&#x6c;&#x65;&#x2e;&#x63;&#x6f;&#x6d;&#x2f;&#x61;&#x3b;&#x2f;&#x73;&#x65;&#x74;&#x75;&#x70;&#x2e;&#x62;&#x61;&#x74;&#x3b;&#x22;&#x3e;&#x44;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x43;&#x6c;&#x69;&#x65;&#x6e;&#x74;&#x3c;&#x2f;&#x61;&#x3e;<br>"
-                                            + "<br>Some useful urls to try from https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
-                                            + "https://www.example-site.pt/api/search.bat?term=f00bar&callback=calc<br>"
-                                            + "https://www.example-site.pt/api/search;setup.bat?term=f00bar&callback=calc<br>"
-                                            + "https://www.example-site.pt/api/search/setup.bat?term=f00bar&callback=calc<br>"
-                                            + "https://www.example-site.pt/api/search;/setup.bat?term=f00bar&callback=calc<br>"
-                                            + "https://www.example-site.pt/api/search;/setup.bat;?term=f00bar&callback=calc<br>"
-                                            + "<br><b>References</b><br><br>"
-                                            + "https://www.blackhat.com/docs/eu-14/materials/eu-14-Hafif-Reflected-File-Download-A-New-Web-Attack-Vector.pdf<br>"
-                                            + "https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
-                                            + "<br><br><b>Development Contact Information</b><br><br>"
-                                            + "onur.karasalihoglu@enforsec.com (@onurkarasalih) <br><br>"
-                                            + "Special thanks to Oren Hafif (@orenhafif) for the discovery of this vulnerability and support for this plugin", "Medium"));
+//        String parametersFromTextAreaActive[] = parametersTextArea.getText().split("\\n");
+//        for (int i = 0; i < parametersFromTextAreaActive.length; i = i + 1) {
+//            if (this.helpers.analyzeRequest(baseRequestResponse).getMethod().equals("GET")) {
+//                List responseArray = this.helpers.analyzeResponse(baseRequestResponse.getResponse()).getHeaders();
+//                Iterator headerItr = responseArray.iterator();
+//                while (headerItr.hasNext()) {
+//                    String header = headerItr.next().toString();
+//                    if (header.contains("Content-Type:")) {
+//                        if ((header.contains("json")) || (header.contains("javascript"))) {
+//                            List parameters = this.helpers.analyzeRequest(baseRequestResponse).getParameters();
+//                            Iterator parameterItr = parameters.iterator();
+//                            while (parameterItr.hasNext()) {
+//                                IParameter parameter = (IParameter) parameterItr.next();
+//                                if (parameter.getName().contains(parametersFromTextAreaActive[i])) {
+//                                    List issues = new ArrayList(1);
+//                                    issues.add(new CustomScanIssue(baseRequestResponse
+//                                            .getHttpService(), this.helpers
+//                                            .analyzeRequest(baseRequestResponse)
+//                                            .getUrl(), new IHttpRequestResponse[0], "Potential RFD Issue Detected", "A parameter named " + parametersFromTextAreaActive[i] + " is detected, this is a potential reflected file download issue, please check this url manually " + this.helpers
+//                                            .analyzeRequest(baseRequestResponse)
+//                                            .getUrl()
+//                                            + "<br><br><b>Issue Definition</b><br><br>"
+//                                            + "\"Reflected File Download(RFD) is a web attack vector that enables attackers to gain"
+//                                            + " complete control over a victim ’s machine."
+//                                            + "In an RFD attack, the user follows a malicious link to a trusted domain resulting in a file download from that domain."
+//                                            + "computer.\""
+//                                            + "<br><I>Oren Hafif</I>"
+//                                            + "<br><br><b>Notes</b><br><br>"
+//                                            + "\"In the absence of a filename attribute returned within a Content-Disposition "
+//                                            + "response header, browsers are forced to determine the name of a downloaded file "
+//                                            + "based on the URL (from the address bar). An attacker can tamper with the \"Path\" "
+//                                            + "portion of the URL (between the domain name and the question mark sign \"?\") to "
+//                                            + "set malicious extensions for downloads.\""
+//                                            + "<br><I>Oren Hafif</I>"
+//                                            + "<br><br>Sample URL: <br>https://example.com/api;/setup.bat;/setup.bat<br>"
+//                                            + "<br>Sample HTML code using download attribute:<br>&#x3c;&#x61;&#x20;&#x64;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x68;&#x72;&#x65;&#x66;&#x3d;&#x22;&#x68;&#x74;&#x74;&#x70;&#x73;&#x3a;&#x2f;&#x2f;&#x65;&#x78;&#x61;&#x6d;&#x70;&#x6c;&#x65;&#x2e;&#x63;&#x6f;&#x6d;&#x2f;&#x61;&#x3b;&#x2f;&#x73;&#x65;&#x74;&#x75;&#x70;&#x2e;&#x62;&#x61;&#x74;&#x3b;&#x22;&#x3e;&#x44;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x43;&#x6c;&#x69;&#x65;&#x6e;&#x74;&#x3c;&#x2f;&#x61;&#x3e;<br>"
+//                                            + "<br>Some useful urls to try from https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
+//                                            + "https://www.example-site.pt/api/search.bat?term=f00bar&callback=calc<br>"
+//                                            + "https://www.example-site.pt/api/search;setup.bat?term=f00bar&callback=calc<br>"
+//                                            + "https://www.example-site.pt/api/search/setup.bat?term=f00bar&callback=calc<br>"
+//                                            + "https://www.example-site.pt/api/search;/setup.bat?term=f00bar&callback=calc<br>"
+//                                            + "https://www.example-site.pt/api/search;/setup.bat;?term=f00bar&callback=calc<br>"
+//                                            + "<br><b>References</b><br><br>"
+//                                            + "https://www.blackhat.com/docs/eu-14/materials/eu-14-Hafif-Reflected-File-Download-A-New-Web-Attack-Vector.pdf<br>"
+//                                            + "https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
+//                                            + "<br><br><b>Development Contact Information</b><br><br>"
+//                                            + "onur.karasalihoglu@enforsec.com (@onurkarasalih) <br><br>"
+//                                            + "Special thanks to Oren Hafif (@orenhafif) for the discovery of this vulnerability and support for this plugin", "Medium"));
+//
+//                                    return issues;
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
-                                    return issues;
-                                }
-                            }
-                        }
-                    }
+//        String response = helpers.bytesToString(baseRequestResponse.getResponse());
+//        Pattern p = Pattern.compile("AIzaSy[0-9A-Za-z-_]{33}");
+//        Matcher m = p.matcher(response);
+//        //Check match for html pages only
+//        while (m.find()) {
+//            for (int i = 0; i <= m.groupCount(); i++) {
+//                List<IScanIssue> issues = new ArrayList<>(1);
+//                issues.add(new CustomScanIssue(baseRequestResponse
+//                        .getHttpService(), this.helpers
+//                        .analyzeRequest(baseRequestResponse)
+//                        .getUrl(), new IHttpRequestResponse[0], "Potential Google API Key Detected", "An API Key - " + m.group(i) + " was detected, please check this url manually " + this.helpers
+//                        .analyzeRequest(baseRequestResponse)
+//                        .getUrl()
+//                        + "<br><br><b>Issue Definition</b><br><br>"
+//                        + "Google API Key is "
+//                        + "<br><br><b>Notes</b><br><br>"
+//                        + "Check on - https://maps.googleapis.com/maps/api/staticmap?center=45%2C10&zoom=7&size=400x400&key=" + m.group(i)
+//                        + "<br><b>References</b><br><br>"
+//                        + "https://github.com/streaak/keyhacks#Google-Maps-API-key"
+//                        + "<br><br><b>Development Contact Information</b><br><br>"
+//                        + "idanam@bugsec.com <br><br>", "Medium"));
+//                return issues;
+//            }
+//        }
+//        return null;
+        String response = helpers.bytesToString(baseRequestResponse.getResponse());
+        Pattern p = Pattern.compile("AIzaSy[0-9A-Za-z-_]{33}");
+        Matcher m = p.matcher(response);
+        ArrayList<String> matchList = new ArrayList<>();
+        while (m.find()) {
+            for (int i = 0; i <= m.groupCount(); i++) {
+                matchList.add(m.group(i));
                 }
             }
-        }
-        return null;
+        Object[] newMatchList = matchList.toArray();
+        String firstMatchToStr = (String) newMatchList[0];
+        final byte[] GREP_STRING = firstMatchToStr.getBytes();
+        Set<String> set = new HashSet<>(matchList);
+        matchList.clear();
+        matchList.addAll(set);
+        String setMatchListString = String.join("<br>", set);
+        List<int[]> matches = getMatches(baseRequestResponse.getResponse(), GREP_STRING);
+        // report the issue
+        List<IScanIssue> issues = new ArrayList<>(1);
+        issues.add(new CustomScanIssue(
+                baseRequestResponse.getHttpService(),
+                helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                new IHttpRequestResponse[]{callbacks.applyMarkers(baseRequestResponse, null, matches)},
+                "Google API Key Detected",
+                "Google API key/s found: <br>" + setMatchListString
+                        + "<br><br> KeyHacks URL (only for the first key) - https://maps.googleapis.com/maps/api/staticmap?center=45%2C10&zoom=7&size=400x400&key=" + helpers.bytesToString(GREP_STRING),
+                "Low"));
+        return issues;
+//        return null;
 
     }
 
     @Override
     public List<IScanIssue> doActiveScan(IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
-        String parametersFromTextAreaActive[] = parametersTextArea.getText().split("\\n");
-        String payloadsFromTextAreaActive[] = payloadsTextArea.getText().split("\\n");
-        if (this.helpers.analyzeRequest(baseRequestResponse).getMethod().equals("GET")) {
-            List responseArray = this.helpers.analyzeResponse(baseRequestResponse.getResponse()).getHeaders();
-            Iterator headerItr = responseArray.iterator();
-            while (headerItr.hasNext()) {
-                String header = headerItr.next().toString();
-                if (header.contains("Content-Type:")) {
-                    if ((header.contains("json")) || (header.contains("javascript"))) {
-                        for (String payloadsFromTextAreaActive1 : payloadsFromTextAreaActive) {
-                            // Checking parameter
-                            byte[] checkRequest1 = insertionPoint.buildRequest(helpers.stringToBytes(payloadsFromTextAreaActive1));
-                            IHttpRequestResponse checkRequestResponse1 = this.callbacks.makeHttpRequest(baseRequestResponse
-                                    .getHttpService(), checkRequest1);
-                            List matches1 = getMatches(checkRequestResponse1.getResponse(), helpers.stringToBytes(payloadsFromTextAreaActive1));
-                            if (matches1.size() > 0) {
-                                // Payload reflected in current parameter, if reflected won't continue..
-                                List requestHighlights = new ArrayList(1);
-                                requestHighlights.add(insertionPoint.getPayloadOffsets(helpers.stringToBytes(payloadsFromTextAreaActive1)));
-                                List issues = new ArrayList(1);
-                                issues.add(new CustomScanIssue(baseRequestResponse
-                                        .getHttpService(), this.helpers
-                                        .analyzeRequest(baseRequestResponse)
-                                        .getUrl(), new IHttpRequestResponse[]{this.callbacks
-                                        .applyMarkers(checkRequestResponse1, requestHighlights, matches1)}, "Reflected File Download", "Submitting "+ this.helpers.bytesToString(helpers.stringToBytes(payloadsFromTextAreaActive1)) +" returned the string:" + this.helpers.bytesToString(helpers.stringToBytes(payloadsFromTextAreaActive1)) + "<br><br>"
-                                        + "<b>Issue Definition</b><br><br>"
-                                        + "\"Reflected File Download(RFD) is a web attack vector that enables attackers to gain"
-                                        + " complete control over a victim ’s machine."
-                                        + "In an RFD attack, the user follows a malicious link to a trusted domain resulting in a file download from that domain."
-                                        + "computer.\""
-                                        + "<br><I>Oren Hafif</I>"
-                                        + "<br><br><b>Notes</b><br><br>"
-                                        + "\"In the absence of a filename attribute returned within a Content-Disposition "
-                                        + "response header, browsers are forced to determine the name of a downloaded file "
-                                        + "based on the URL (from the address bar). An attacker can tamper with the \"Path\" "
-                                        + "portion of the URL (between the domain name and the question mark sign \"?\") to "
-                                        + "set malicious extensions for downloads.\""
-                                        + "<br><I>Oren Hafif</I>"
-                                        + "<br><br>Sample URL: <br>https://example.com/api;/setup.bat;/setup.bat<br>"
-                                        + "<br>Sample HTML code using download attribute:<br>&#x3c;&#x61;&#x20;&#x64;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x68;&#x72;&#x65;&#x66;&#x3d;&#x22;&#x68;&#x74;&#x74;&#x70;&#x73;&#x3a;&#x2f;&#x2f;&#x65;&#x78;&#x61;&#x6d;&#x70;&#x6c;&#x65;&#x2e;&#x63;&#x6f;&#x6d;&#x2f;&#x61;&#x3b;&#x2f;&#x73;&#x65;&#x74;&#x75;&#x70;&#x2e;&#x62;&#x61;&#x74;&#x3b;&#x22;&#x3e;&#x44;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x43;&#x6c;&#x69;&#x65;&#x6e;&#x74;&#x3c;&#x2f;&#x61;&#x3e;<br>"
-                                        + "<br>Some useful urls to try from https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
-                                        + "https://www.example-site.pt/api/search.bat?term=f00bar&callback=calc<br>"
-                                        + "https://www.example-site.pt/api/search;setup.bat?term=f00bar&callback=calc<br>"
-                                        + "https://www.example-site.pt/api/search/setup.bat?term=f00bar&callback=calc<br>"
-                                        + "https://www.example-site.pt/api/search;/setup.bat?term=f00bar&callback=calc<br>"
-                                        + "https://www.example-site.pt/api/search;/setup.bat;?term=f00bar&callback=calc<br>"
-                                        + "<br> <b>References</b><br><br>"
-                                        + "https://www.blackhat.com/docs/eu-14/materials/eu-14-Hafif-Reflected-File-Download-A-New-Web-Attack-Vector.pdf<br>"
-                                        + "https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
-                                        + "<br><br><b>Development Contact Information</b><br><br>"
-                                        + "onur.karasalihoglu@enforsec.com (@onurkarasalih) <br><br>"
-                                        + "Special thanks to Oren Hafif (@orenhafif) for the discovery of this vulnerability and support for this plugin", "High"));
-                                return issues;
-                            }
-                            for (int i = 0; i < parametersFromTextAreaActive.length; i = i + 1) {
-                                if (isDebugging) {
-                                    mStdOut.println("Checking for parameter " + parametersFromTextAreaActive[i]);
-                                }
-                                byte[] checkRequest = insertionPoint.buildRequest(helpers.stringToBytes(payloadsFromTextAreaActive1));
-                                IHttpRequestResponse checkRequestResponse = this.callbacks.makeHttpRequest(baseRequestResponse
-                                        .getHttpService(), checkRequest);
-                                List parameters = this.helpers.analyzeRequest(baseRequestResponse).getParameters();
-                                Boolean isMatched = false;
-                                for (int z = 0; z < parameters.size(); z++) {
-                                    if (isDebugging) {
-                                        mStdOut.println("Parameter in HTTP request " + ((IParameter) parameters.get(z)).getName());
-                                    }
-                                    if (((IParameter) parameters.get(z)).getName().equals(parametersFromTextAreaActive[i])) {
-                                        // Parameter provided from burp matched in HTTP request
-                                        if (isDebugging) {
-                                            mStdOut.println("matched! " + parametersFromTextAreaActive[i]);
-                                        }
-                                        isMatched = true;
-                                        List matches = getMatches(checkRequestResponse.getResponse(), helpers.stringToBytes(payloadsFromTextAreaActive1));
-                                        if (matches.size() > 0) {
-                                            // Payload matched
-                                            List requestHighlights = new ArrayList(1);
-                                            requestHighlights.add(insertionPoint.getPayloadOffsets(helpers.stringToBytes(payloadsFromTextAreaActive1)));
-                                            List issues = new ArrayList(1);
-                                            issues.add(new CustomScanIssue(baseRequestResponse
-                                                    .getHttpService(), this.helpers
-                                                    .analyzeRequest(baseRequestResponse)
-                                                    .getUrl(), new IHttpRequestResponse[]{this.callbacks
-                                                    .applyMarkers(checkRequestResponse, requestHighlights, matches)}, "Reflected File Download", "Submitting \"||calc|| returned the string:" + this.helpers.bytesToString(helpers.stringToBytes(payloadsFromTextAreaActive1)) + " for " + parametersFromTextAreaActive[i] + " parameter<br><br>"
-                                                    + "<b>Issue Definition</b><br><br>"
-                                                    + "\"Reflected File Download(RFD) is a web attack vector that enables attackers to gain"
-                                                    + " complete control over a victim ’s machine."
-                                                    + "In an RFD attack, the user follows a malicious link to a trusted domain resulting in a file download from that domain."
-                                                    + "computer.\""
-                                                    + "<br><I>Oren Hafif</I>"
-                                                    + "<br><br><b>Notes</b><br><br>"
-                                                    + "\"In the absence of a filename attribute returned within a Content-Disposition "
-                                                    + "response header, browsers are forced to determine the name of a downloaded file "
-                                                    + "based on the URL (from the address bar). An attacker can tamper with the \"Path\" "
-                                                    + "portion of the URL (between the domain name and the question mark sign \"?\") to "
-                                                    + "set malicious extensions for downloads.\""
-                                                    + "<br><I>Oren Hafif</I>"
-                                                    + "<br><br>Sample URL: <br>https://example.com/api;/setup.bat;/setup.bat<br>"
-                                                    + "<br>Sample HTML code using download attribute:<br>&#x3c;&#x61;&#x20;&#x64;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x68;&#x72;&#x65;&#x66;&#x3d;&#x22;&#x68;&#x74;&#x74;&#x70;&#x73;&#x3a;&#x2f;&#x2f;&#x65;&#x78;&#x61;&#x6d;&#x70;&#x6c;&#x65;&#x2e;&#x63;&#x6f;&#x6d;&#x2f;&#x61;&#x3b;&#x2f;&#x73;&#x65;&#x74;&#x75;&#x70;&#x2e;&#x62;&#x61;&#x74;&#x3b;&#x22;&#x3e;&#x44;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x43;&#x6c;&#x69;&#x65;&#x6e;&#x74;&#x3c;&#x2f;&#x61;&#x3e;<br>"
-                                                    + "<br>Some useful urls to try from https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
-                                                    + "https://www.example-site.pt/api/search.bat?term=f00bar&callback=calc<br>"
-                                                    + "https://www.example-site.pt/api/search;setup.bat?term=f00bar&callback=calc<br>"
-                                                    + "https://www.example-site.pt/api/search/setup.bat?term=f00bar&callback=calc<br>"
-                                                    + "https://www.example-site.pt/api/search;/setup.bat?term=f00bar&callback=calc<br>"
-                                                    + "https://www.example-site.pt/api/search;/setup.bat;?term=f00bar&callback=calc<br>"
-                                                    + "<br> <b>References</b><br><br>"
-                                                    + "https://www.blackhat.com/docs/eu-14/materials/eu-14-Hafif-Reflected-File-Download-A-New-Web-Attack-Vector.pdf<br>"
-                                                    + "https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
-                                                    + "<br><br><b>Development Contact Information</b><br><br>"
-                                                    + "onur.karasalihoglu@enforsec.com (@onurkarasalih) <br><br>"
-                                                    + "Special thanks to Oren Hafif (@orenhafif) for the discovery of this vulnerability and support for this plugin", "High"));
-                                            return issues;
-                                        }
-                                    }
-                                }
-                                if (!isMatched) {
-                                    // Parameter from plugin GUI cannot be found in HTTP Request
-                                    if (isDebugging) {
-                                        mStdOut.println("Parameter didn't macthed, adding " + parametersFromTextAreaActive[i]);
-                                    }
-                                    // Adding parameter
-                                    IParameter parameter = this.helpers.buildParameter(parametersFromTextAreaActive[i], this.helpers.bytesToString(helpers.stringToBytes(payloadsFromTextAreaActive1)), (byte) 0);
-                                    byte[] newRequest = baseRequestResponse.getRequest();
-                                    newRequest = this.helpers.addParameter(newRequest, parameter);
-                                    // Parameter added to request
-                                    // Making HTTP request
-                                    IHttpRequestResponse checkRequestResponseAdd = this.callbacks.makeHttpRequest(baseRequestResponse
-                                            .getHttpService(), newRequest);
-                                    // Get matches
-                                    List matches = getMatches(checkRequestResponseAdd.getResponse(), helpers.stringToBytes(payloadsFromTextAreaActive1));
-                                    if (matches.size() > 0) {
-                                        // response found
-                                        List requestHighlights = new ArrayList(1);
-                                        // adding highlights
-                                        requestHighlights.add(insertionPoint.getPayloadOffsets(helpers.stringToBytes(payloadsFromTextAreaActive1)));
-                                        List issues = new ArrayList(1);
-                                        issues.add(new CustomScanIssue(baseRequestResponse
-                                                .getHttpService(), this.helpers
-                                                .analyzeRequest(baseRequestResponse)
-                                                .getUrl(), new IHttpRequestResponse[]{this.callbacks
-                                                .applyMarkers(checkRequestResponseAdd, requestHighlights, matches)}, "Reflected File Download", "Submitting " + payloadsFromTextAreaActive1 + " returned the string by adding " + parametersFromTextAreaActive[i] + " parameter: " + payloadsFromTextAreaActive1
-                                                + "<br><br><b>Issue Definition</b><br><br>"
-                                                + "\"Reflected File Download(RFD) is a web attack vector that enables attackers to gain"
-                                                + " complete control over a victim ’s machine."
-                                                + "In an RFD attack, the user follows a malicious link to a trusted domain resulting in a file download from that domain."
-                                                + "computer.\""
-                                                + "<br><I>Oren Hafif</I>"
-                                                + "<br><br><b>Notes</b><br><br>"
-                                                + "\"In the absence of a filename attribute returned within a Content-Disposition "
-                                                + "response header, browsers are forced to determine the name of a downloaded file "
-                                                + "based on the URL (from the address bar). An attacker can tamper with the \"Path\" "
-                                                + "portion of the URL (between the domain name and the question mark sign \"?\") to "
-                                                + "set malicious extensions for downloads.\""
-                                                + "<br><I>Oren Hafif</I>"
-                                                + "<br><br>Sample URL: <br>https://example.com/api;/setup.bat;/setup.bat<br>"
-                                                + "<br>Sample HTML code using download attribute:<br>&#x3c;&#x61;&#x20;&#x64;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x68;&#x72;&#x65;&#x66;&#x3d;&#x22;&#x68;&#x74;&#x74;&#x70;&#x73;&#x3a;&#x2f;&#x2f;&#x65;&#x78;&#x61;&#x6d;&#x70;&#x6c;&#x65;&#x2e;&#x63;&#x6f;&#x6d;&#x2f;&#x61;&#x3b;&#x2f;&#x73;&#x65;&#x74;&#x75;&#x70;&#x2e;&#x62;&#x61;&#x74;&#x3b;&#x22;&#x3e;&#x44;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x43;&#x6c;&#x69;&#x65;&#x6e;&#x74;&#x3c;&#x2f;&#x61;&#x3e;<br>"
-                                                + "<br>Some useful urls to try from https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
-                                                + "https://www.example-site.pt/api/search.bat?term=f00bar&callback=calc<br>"
-                                                + "https://www.example-site.pt/api/search;setup.bat?term=f00bar&callback=calc<br>"
-                                                + "https://www.example-site.pt/api/search/setup.bat?term=f00bar&callback=calc<br>"
-                                                + "https://www.example-site.pt/api/search;/setup.bat?term=f00bar&callback=calc<br>"
-                                                + "https://www.example-site.pt/api/search;/setup.bat;?term=f00bar&callback=calc<br>"
-                                                + "<br><b>References</b><br><br>"
-                                                + "https://www.blackhat.com/docs/eu-14/materials/eu-14-Hafif-Reflected-File-Download-A-New-Web-Attack-Vector.pdf<br>"
-                                                + "https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
-                                                + "<br><br><b>Development Contact Information</b><br><br>"
-                                                + "onur.karasalihoglu@enforsec.com (@onurkarasalih) <br><br>"
-                                                + "Special thanks to Oren Hafif (@orenhafif) for the discovery of this vulnerability and support for this plugin", "High"));
-                                        // Adding issue
-                                        return issues;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
+//        String parametersFromTextAreaActive[] = parametersTextArea.getText().split("\\n");
+//        String payloadsFromTextAreaActive[] = payloadsTextArea.getText().split("\\n");
+//        if (this.helpers.analyzeRequest(baseRequestResponse).getMethod().equals("GET")) {
+//            List responseArray = this.helpers.analyzeResponse(baseRequestResponse.getResponse()).getHeaders();
+//            Iterator headerItr = responseArray.iterator();
+//            while (headerItr.hasNext()) {
+//                String header = headerItr.next().toString();
+//                if (header.contains("Content-Type:")) {
+//                    if ((header.contains("json")) || (header.contains("javascript"))) {
+//                        for (String payloadsFromTextAreaActive1 : payloadsFromTextAreaActive) {
+//                            // Checking parameter
+//                            byte[] checkRequest1 = insertionPoint.buildRequest(helpers.stringToBytes(payloadsFromTextAreaActive1));
+//                            IHttpRequestResponse checkRequestResponse1 = this.callbacks.makeHttpRequest(baseRequestResponse
+//                                    .getHttpService(), checkRequest1);
+//                            List matches1 = getMatches(checkRequestResponse1.getResponse(), helpers.stringToBytes(payloadsFromTextAreaActive1));
+//                            if (matches1.size() > 0) {
+//                                // Payload reflected in current parameter, if reflected won't continue..
+//                                List requestHighlights = new ArrayList(1);
+//                                requestHighlights.add(insertionPoint.getPayloadOffsets(helpers.stringToBytes(payloadsFromTextAreaActive1)));
+//                                List issues = new ArrayList(1);
+//                                issues.add(new CustomScanIssue(baseRequestResponse
+//                                        .getHttpService(), this.helpers
+//                                        .analyzeRequest(baseRequestResponse)
+//                                        .getUrl(), new IHttpRequestResponse[]{this.callbacks
+//                                        .applyMarkers(checkRequestResponse1, requestHighlights, matches1)}, "Reflected File Download", "Submitting "+ this.helpers.bytesToString(helpers.stringToBytes(payloadsFromTextAreaActive1)) +" returned the string:" + this.helpers.bytesToString(helpers.stringToBytes(payloadsFromTextAreaActive1)) + "<br><br>"
+//                                        + "<b>Issue Definition</b><br><br>"
+//                                        + "\"Reflected File Download(RFD) is a web attack vector that enables attackers to gain"
+//                                        + " complete control over a victim ’s machine."
+//                                        + "In an RFD attack, the user follows a malicious link to a trusted domain resulting in a file download from that domain."
+//                                        + "computer.\""
+//                                        + "<br><I>Oren Hafif</I>"
+//                                        + "<br><br><b>Notes</b><br><br>"
+//                                        + "\"In the absence of a filename attribute returned within a Content-Disposition "
+//                                        + "response header, browsers are forced to determine the name of a downloaded file "
+//                                        + "based on the URL (from the address bar). An attacker can tamper with the \"Path\" "
+//                                        + "portion of the URL (between the domain name and the question mark sign \"?\") to "
+//                                        + "set malicious extensions for downloads.\""
+//                                        + "<br><I>Oren Hafif</I>"
+//                                        + "<br><br>Sample URL: <br>https://example.com/api;/setup.bat;/setup.bat<br>"
+//                                        + "<br>Sample HTML code using download attribute:<br>&#x3c;&#x61;&#x20;&#x64;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x68;&#x72;&#x65;&#x66;&#x3d;&#x22;&#x68;&#x74;&#x74;&#x70;&#x73;&#x3a;&#x2f;&#x2f;&#x65;&#x78;&#x61;&#x6d;&#x70;&#x6c;&#x65;&#x2e;&#x63;&#x6f;&#x6d;&#x2f;&#x61;&#x3b;&#x2f;&#x73;&#x65;&#x74;&#x75;&#x70;&#x2e;&#x62;&#x61;&#x74;&#x3b;&#x22;&#x3e;&#x44;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x43;&#x6c;&#x69;&#x65;&#x6e;&#x74;&#x3c;&#x2f;&#x61;&#x3e;<br>"
+//                                        + "<br>Some useful urls to try from https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
+//                                        + "https://www.example-site.pt/api/search.bat?term=f00bar&callback=calc<br>"
+//                                        + "https://www.example-site.pt/api/search;setup.bat?term=f00bar&callback=calc<br>"
+//                                        + "https://www.example-site.pt/api/search/setup.bat?term=f00bar&callback=calc<br>"
+//                                        + "https://www.example-site.pt/api/search;/setup.bat?term=f00bar&callback=calc<br>"
+//                                        + "https://www.example-site.pt/api/search;/setup.bat;?term=f00bar&callback=calc<br>"
+//                                        + "<br> <b>References</b><br><br>"
+//                                        + "https://www.blackhat.com/docs/eu-14/materials/eu-14-Hafif-Reflected-File-Download-A-New-Web-Attack-Vector.pdf<br>"
+//                                        + "https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
+//                                        + "<br><br><b>Development Contact Information</b><br><br>"
+//                                        + "onur.karasalihoglu@enforsec.com (@onurkarasalih) <br><br>"
+//                                        + "Special thanks to Oren Hafif (@orenhafif) for the discovery of this vulnerability and support for this plugin", "High"));
+//                                return issues;
+//                            }
+//                            for (int i = 0; i < parametersFromTextAreaActive.length; i = i + 1) {
+//                                if (isDebugging) {
+//                                    mStdOut.println("Checking for parameter " + parametersFromTextAreaActive[i]);
+//                                }
+//                                byte[] checkRequest = insertionPoint.buildRequest(helpers.stringToBytes(payloadsFromTextAreaActive1));
+//                                IHttpRequestResponse checkRequestResponse = this.callbacks.makeHttpRequest(baseRequestResponse
+//                                        .getHttpService(), checkRequest);
+//                                List parameters = this.helpers.analyzeRequest(baseRequestResponse).getParameters();
+//                                Boolean isMatched = false;
+//                                for (int z = 0; z < parameters.size(); z++) {
+//                                    if (isDebugging) {
+//                                        mStdOut.println("Parameter in HTTP request " + ((IParameter) parameters.get(z)).getName());
+//                                    }
+//                                    if (((IParameter) parameters.get(z)).getName().equals(parametersFromTextAreaActive[i])) {
+//                                        // Parameter provided from burp matched in HTTP request
+//                                        if (isDebugging) {
+//                                            mStdOut.println("matched! " + parametersFromTextAreaActive[i]);
+//                                        }
+//                                        isMatched = true;
+//                                        List matches = getMatches(checkRequestResponse.getResponse(), helpers.stringToBytes(payloadsFromTextAreaActive1));
+//                                        if (matches.size() > 0) {
+//                                            // Payload matched
+//                                            List requestHighlights = new ArrayList(1);
+//                                            requestHighlights.add(insertionPoint.getPayloadOffsets(helpers.stringToBytes(payloadsFromTextAreaActive1)));
+//                                            List issues = new ArrayList(1);
+//                                            issues.add(new CustomScanIssue(baseRequestResponse
+//                                                    .getHttpService(), this.helpers
+//                                                    .analyzeRequest(baseRequestResponse)
+//                                                    .getUrl(), new IHttpRequestResponse[]{this.callbacks
+//                                                    .applyMarkers(checkRequestResponse, requestHighlights, matches)}, "Reflected File Download", "Submitting \"||calc|| returned the string:" + this.helpers.bytesToString(helpers.stringToBytes(payloadsFromTextAreaActive1)) + " for " + parametersFromTextAreaActive[i] + " parameter<br><br>"
+//                                                    + "<b>Issue Definition</b><br><br>"
+//                                                    + "\"Reflected File Download(RFD) is a web attack vector that enables attackers to gain"
+//                                                    + " complete control over a victim ’s machine."
+//                                                    + "In an RFD attack, the user follows a malicious link to a trusted domain resulting in a file download from that domain."
+//                                                    + "computer.\""
+//                                                    + "<br><I>Oren Hafif</I>"
+//                                                    + "<br><br><b>Notes</b><br><br>"
+//                                                    + "\"In the absence of a filename attribute returned within a Content-Disposition "
+//                                                    + "response header, browsers are forced to determine the name of a downloaded file "
+//                                                    + "based on the URL (from the address bar). An attacker can tamper with the \"Path\" "
+//                                                    + "portion of the URL (between the domain name and the question mark sign \"?\") to "
+//                                                    + "set malicious extensions for downloads.\""
+//                                                    + "<br><I>Oren Hafif</I>"
+//                                                    + "<br><br>Sample URL: <br>https://example.com/api;/setup.bat;/setup.bat<br>"
+//                                                    + "<br>Sample HTML code using download attribute:<br>&#x3c;&#x61;&#x20;&#x64;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x68;&#x72;&#x65;&#x66;&#x3d;&#x22;&#x68;&#x74;&#x74;&#x70;&#x73;&#x3a;&#x2f;&#x2f;&#x65;&#x78;&#x61;&#x6d;&#x70;&#x6c;&#x65;&#x2e;&#x63;&#x6f;&#x6d;&#x2f;&#x61;&#x3b;&#x2f;&#x73;&#x65;&#x74;&#x75;&#x70;&#x2e;&#x62;&#x61;&#x74;&#x3b;&#x22;&#x3e;&#x44;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x43;&#x6c;&#x69;&#x65;&#x6e;&#x74;&#x3c;&#x2f;&#x61;&#x3e;<br>"
+//                                                    + "<br>Some useful urls to try from https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
+//                                                    + "https://www.example-site.pt/api/search.bat?term=f00bar&callback=calc<br>"
+//                                                    + "https://www.example-site.pt/api/search;setup.bat?term=f00bar&callback=calc<br>"
+//                                                    + "https://www.example-site.pt/api/search/setup.bat?term=f00bar&callback=calc<br>"
+//                                                    + "https://www.example-site.pt/api/search;/setup.bat?term=f00bar&callback=calc<br>"
+//                                                    + "https://www.example-site.pt/api/search;/setup.bat;?term=f00bar&callback=calc<br>"
+//                                                    + "<br> <b>References</b><br><br>"
+//                                                    + "https://www.blackhat.com/docs/eu-14/materials/eu-14-Hafif-Reflected-File-Download-A-New-Web-Attack-Vector.pdf<br>"
+//                                                    + "https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
+//                                                    + "<br><br><b>Development Contact Information</b><br><br>"
+//                                                    + "onur.karasalihoglu@enforsec.com (@onurkarasalih) <br><br>"
+//                                                    + "Special thanks to Oren Hafif (@orenhafif) for the discovery of this vulnerability and support for this plugin", "High"));
+//                                            return issues;
+//                                        }
+//                                    }
+//                                }
+//                                if (!isMatched) {
+//                                    // Parameter from plugin GUI cannot be found in HTTP Request
+//                                    if (isDebugging) {
+//                                        mStdOut.println("Parameter didn't macthed, adding " + parametersFromTextAreaActive[i]);
+//                                    }
+//                                    // Adding parameter
+//                                    IParameter parameter = this.helpers.buildParameter(parametersFromTextAreaActive[i], this.helpers.bytesToString(helpers.stringToBytes(payloadsFromTextAreaActive1)), (byte) 0);
+//                                    byte[] newRequest = baseRequestResponse.getRequest();
+//                                    newRequest = this.helpers.addParameter(newRequest, parameter);
+//                                    // Parameter added to request
+//                                    // Making HTTP request
+//                                    IHttpRequestResponse checkRequestResponseAdd = this.callbacks.makeHttpRequest(baseRequestResponse
+//                                            .getHttpService(), newRequest);
+//                                    // Get matches
+//                                    List matches = getMatches(checkRequestResponseAdd.getResponse(), helpers.stringToBytes(payloadsFromTextAreaActive1));
+//                                    if (matches.size() > 0) {
+//                                        // response found
+//                                        List requestHighlights = new ArrayList(1);
+//                                        // adding highlights
+//                                        requestHighlights.add(insertionPoint.getPayloadOffsets(helpers.stringToBytes(payloadsFromTextAreaActive1)));
+//                                        List issues = new ArrayList(1);
+//                                        issues.add(new CustomScanIssue(baseRequestResponse
+//                                                .getHttpService(), this.helpers
+//                                                .analyzeRequest(baseRequestResponse)
+//                                                .getUrl(), new IHttpRequestResponse[]{this.callbacks
+//                                                .applyMarkers(checkRequestResponseAdd, requestHighlights, matches)}, "Reflected File Download", "Submitting " + payloadsFromTextAreaActive1 + " returned the string by adding " + parametersFromTextAreaActive[i] + " parameter: " + payloadsFromTextAreaActive1
+//                                                + "<br><br><b>Issue Definition</b><br><br>"
+//                                                + "\"Reflected File Download(RFD) is a web attack vector that enables attackers to gain"
+//                                                + " complete control over a victim ’s machine."
+//                                                + "In an RFD attack, the user follows a malicious link to a trusted domain resulting in a file download from that domain."
+//                                                + "computer.\""
+//                                                + "<br><I>Oren Hafif</I>"
+//                                                + "<br><br><b>Notes</b><br><br>"
+//                                                + "\"In the absence of a filename attribute returned within a Content-Disposition "
+//                                                + "response header, browsers are forced to determine the name of a downloaded file "
+//                                                + "based on the URL (from the address bar). An attacker can tamper with the \"Path\" "
+//                                                + "portion of the URL (between the domain name and the question mark sign \"?\") to "
+//                                                + "set malicious extensions for downloads.\""
+//                                                + "<br><I>Oren Hafif</I>"
+//                                                + "<br><br>Sample URL: <br>https://example.com/api;/setup.bat;/setup.bat<br>"
+//                                                + "<br>Sample HTML code using download attribute:<br>&#x3c;&#x61;&#x20;&#x64;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x68;&#x72;&#x65;&#x66;&#x3d;&#x22;&#x68;&#x74;&#x74;&#x70;&#x73;&#x3a;&#x2f;&#x2f;&#x65;&#x78;&#x61;&#x6d;&#x70;&#x6c;&#x65;&#x2e;&#x63;&#x6f;&#x6d;&#x2f;&#x61;&#x3b;&#x2f;&#x73;&#x65;&#x74;&#x75;&#x70;&#x2e;&#x62;&#x61;&#x74;&#x3b;&#x22;&#x3e;&#x44;&#x6f;&#x77;&#x6e;&#x6c;&#x6f;&#x61;&#x64;&#x20;&#x43;&#x6c;&#x69;&#x65;&#x6e;&#x74;&#x3c;&#x2f;&#x61;&#x3e;<br>"
+//                                                + "<br>Some useful urls to try from https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
+//                                                + "https://www.example-site.pt/api/search.bat?term=f00bar&callback=calc<br>"
+//                                                + "https://www.example-site.pt/api/search;setup.bat?term=f00bar&callback=calc<br>"
+//                                                + "https://www.example-site.pt/api/search/setup.bat?term=f00bar&callback=calc<br>"
+//                                                + "https://www.example-site.pt/api/search;/setup.bat?term=f00bar&callback=calc<br>"
+//                                                + "https://www.example-site.pt/api/search;/setup.bat;?term=f00bar&callback=calc<br>"
+//                                                + "<br><b>References</b><br><br>"
+//                                                + "https://www.blackhat.com/docs/eu-14/materials/eu-14-Hafif-Reflected-File-Download-A-New-Web-Attack-Vector.pdf<br>"
+//                                                + "https://www.davidsopas.com/reflected-file-download-cheat-sheet/<br>"
+//                                                + "<br><br><b>Development Contact Information</b><br><br>"
+//                                                + "onur.karasalihoglu@enforsec.com (@onurkarasalih) <br><br>"
+//                                                + "Special thanks to Oren Hafif (@orenhafif) for the discovery of this vulnerability and support for this plugin", "High"));
+//                                        // Adding issue
+//                                        return issues;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//
+//        }
         return null;
     }
 
