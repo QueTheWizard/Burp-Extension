@@ -1,6 +1,4 @@
 package burp;
-import burp.about;
-import burp.TestPanel;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -55,6 +53,9 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
                 JPanel keyHacksPanel = new JPanel();
                 keyHacksPanel.setLayout(new BoxLayout (keyHacksPanel, BoxLayout.Y_AXIS));
                 topTabs.addTab("KeyHacks", keyHacksPanel);
+                JPanel checkListPanel = new JPanel();
+                checkListPanel.setLayout(new BoxLayout (checkListPanel, BoxLayout.Y_AXIS));
+                topTabs.addTab("Check List", checkListPanel);
                 burp.about.initializeFunction(topTabs);
 
                 // KeyHacks Tab
@@ -76,7 +77,7 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
 //                        https://maps.googleapis.com/maps/api/staticmap?center=45%2C10&zoom=7&size=400x400&key=KEY_HERE
                     }
                 });
-                // Clear button
+                // Clear panel and button KeyHacks tab
                 JPanel clearPanel = new JPanel();
                 clearPanel.setLayout(new BoxLayout (clearPanel, BoxLayout.X_AXIS));
                 JButton clearButtonForKeyHacks = new JButton("Clear");
@@ -90,8 +91,9 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
                 });
 
                 // Test - JPanel from other class file
-                JComponent asd = new TestPanel();
-                keyHacksPanel.add(asd);
+                JComponent checkListPanel1 = new CheckListPanel();
+                checkListPanel.add(checkListPanel1);
+
                 // customize our UI components
                 // callbacks.customizeUiComponent(topTabs); // disabled to be able to drag and drop columns
                 // add the custom tab to Burp's UI

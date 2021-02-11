@@ -7,7 +7,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1446bb62-aac8-44ca-a1ca-ba2f8d1e1e3f" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/burp/CheckListPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/artifacts/BurpExtensionTemplate_jar/BurpExtensionTemplate.jar" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/BurpExtensionTemplate_jar/BurpExtensionTemplate.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/BurpExtender$1$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/BurpExtender$1$1.class" afterDir="false" />
@@ -15,8 +16,9 @@
       <change beforePath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/BurpExtender$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/BurpExtender$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/BurpExtender.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/BurpExtender.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/CustomScanIssue.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/CustomScanIssue.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/TestPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/TestPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/TestPanel.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/burp/BurpExtender.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/burp/BurpExtender.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/burp/TestPanel.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +47,9 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$PROJECT_DIR$/../../../../../Program Files/Java/jdk1.8.0_181/src.zip!/java/awt/event/ActionListener.java" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="ProjectId" id="1mYl5SjjT1vPiY5PrEI93MnzLzr" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -54,6 +59,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -61,6 +67,9 @@
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="preferences.keymap" />
+  </component>
+  <component name="ReaderModeSettings">
+    <option name="enabled" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
