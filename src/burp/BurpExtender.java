@@ -199,15 +199,7 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
         Pattern googleApiPattern = Pattern.compile("AIzaSy[0-9A-Za-z-_]{33}");
         Matcher googleApiMatcher = googleApiPattern.matcher(response);
 
-        Pattern awsPattern = Pattern.compile("AKIA[0-9A-Z]{16}");
-        Matcher awsMatcher = awsPattern.matcher(response);
-
-        Pattern slackPattern = Pattern.compile("xox[baprs]-[0-9]{12}-[0-9]{12}-[0-9a-zA-Z]{24}");
-        Matcher slackMatcher = slackPattern.matcher(response);
-
-//        Pattern awsSecretPattern = Pattern.compile("[0-9a-zA-Z/+]{40}");
-//        Matcher awsSecretMatcher = awsSecretPattern.matcher(response);
-
+        // Google API key matcher
         if (googleApiMatcher.find()) {
             ArrayList<String> matchList = new ArrayList<>();
             while (googleApiMatcher.find()) {
@@ -237,6 +229,9 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
         }
 
         // AWS Access Key ID match
+        Pattern awsPattern = Pattern.compile("AKIA[0-9A-Z]{16}");
+        Matcher awsMatcher = awsPattern.matcher(response);
+
         if (awsMatcher.find()) {
             ArrayList<String> matchList = new ArrayList<>();
             while (awsMatcher.find()) {
@@ -266,6 +261,9 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
         }
 
         // Slack API key matcher
+        Pattern slackPattern = Pattern.compile("xox[baprs]-[0-9]{12}-[0-9]{12}-[0-9a-zA-Z]{24}");
+        Matcher slackMatcher = slackPattern.matcher(response);
+
         if (slackMatcher.find()) {
             ArrayList<String> matchList = new ArrayList<>();
             while (slackMatcher.find()) {
@@ -287,41 +285,43 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
                     baseRequestResponse.getHttpService(),
                     helpers.analyzeRequest(baseRequestResponse).getUrl(),
                     new IHttpRequestResponse[]{callbacks.applyMarkers(baseRequestResponse, null, matches)},
-                    "AWS Access Key Detected",
-                    "AWS access key/s found: <br>" + setMatchListString
-                            + "<br><br> Test with awscli: <br> AWS_ACCESS_KEY_ID=xxxx AWS_SECRET_ACCESS_KEY=yyyy aws sts get-caller-identity" + helpers.bytesToString(GREP_STRING),
-                    "High", "Certain"));
+                    "Slack API Key Detected",
+                    "Slack api key/s found: <br>" + setMatchListString
+                            + "<br><br> Test with curl: curl -sX POST \"https://slack.com/api/auth.test?token=xoxp-TOKEN_HERE&pretty=1\"" + helpers.bytesToString(GREP_STRING),
+                    "Low", "Certain"));
             return issues;
         }
 
-        // AWS Secret Key ID match
-//        if (awsSecretMatcher.find()) {
-//            ArrayList<String> matchList = new ArrayList<>();
-//            while (awsSecretMatcher.find()) {
-//                for (int i = 0; i <= awsSecretMatcher.groupCount(); i++) {
-//                    matchList.add(awsSecretMatcher.group(i));
-//                }
-//            }
-//            Object[] newMatchList = matchList.toArray();
-//            String firstMatchToStr = (String) newMatchList[0];
-//            final byte[] GREP_STRING = firstMatchToStr.getBytes();
-//            Set<String> set = new HashSet<>(matchList);
-//            matchList.clear();
-//            matchList.addAll(set);
-//            String setMatchListString = String.join("<br>", set);
-//            List<int[]> matches = getMatches(baseRequestResponse.getResponse(), GREP_STRING);
-//            // report the issue
-//            List<IScanIssue> issues = new ArrayList<>(1);
-//            issues.add(new CustomScanIssue(
-//                    baseRequestResponse.getHttpService(),
-//                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
-//                    new IHttpRequestResponse[]{callbacks.applyMarkers(baseRequestResponse, null, matches)},
-//                    "AWS Secret Key Detected",
-//                    "AWS secret key/s found: <br>" + setMatchListString
-//                            + "<br><br> Test with awscli: <br> AWS_ACCESS_KEY_ID=xxxx AWS_SECRET_ACCESS_KEY=yyyy aws sts get-caller-identity" + helpers.bytesToString(GREP_STRING),
-//                    "High", "Firm"));
-//            return issues;
-//        }
+        // SendGrid Matcher
+        Pattern sendGridPattern = Pattern.compile("SG\\.[0-9A-Za-z\\-_]{22}\\.[0-9A-Za-z\\-_]{43}");
+        Matcher sendGridMatcher = sendGridPattern.matcher(response);
+
+        if (sendGridMatcher.find()) {
+            ArrayList<String> matchList = new ArrayList<>();
+            while (sendGridMatcher.find()) {
+                for (int i = 0; i <= sendGridMatcher.groupCount(); i++) {
+                    matchList.add(sendGridMatcher.group(i));
+                }
+            }
+            Object[] newMatchList = matchList.toArray();
+            String firstMatchToStr = (String) newMatchList[0];
+            final byte[] GREP_STRING = firstMatchToStr.getBytes();
+            Set<String> set = new HashSet<>(matchList);
+            matchList.clear();
+            matchList.addAll(set);
+            String setMatchListString = String.join("<br>", set);
+            List<int[]> matches = getMatches(baseRequestResponse.getResponse(), GREP_STRING);
+            // report the issue
+            List<IScanIssue> issues = new ArrayList<>(1);
+            issues.add(new CustomScanIssue(
+                    baseRequestResponse.getHttpService(),
+                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                    new IHttpRequestResponse[]{callbacks.applyMarkers(baseRequestResponse, null, matches)},
+                    "SendGrid API Key Detected",
+                    "SendGrid api key/s found: <br>" + setMatchListString,
+                    "High", "Firm"));
+            return issues;
+        }
         return null;
 
     }
