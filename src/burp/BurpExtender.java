@@ -20,8 +20,9 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
     private PrintWriter mStdOut;
     private PrintWriter mStdErr;
 
-    private static final byte[] INJ_TEST = "\"||calc||".getBytes();
-    private static final byte[] INJ_ERROR = "\"||calc||".getBytes();
+//    private static final byte[] INJ_TEST = "\"||calc||".getBytes();
+//    private static final byte[] INJ_ERROR = "\"||calc||".getBytes();
+
     // GUI
     private JTabbedPane topTabs;
     TextArea parametersTextArea = new TextArea();
@@ -193,60 +194,135 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
 //            }
 //        }
 
-//        String response = helpers.bytesToString(baseRequestResponse.getResponse());
-//        Pattern p = Pattern.compile("AIzaSy[0-9A-Za-z-_]{33}");
-//        Matcher m = p.matcher(response);
-//        //Check match for html pages only
-//        while (m.find()) {
-//            for (int i = 0; i <= m.groupCount(); i++) {
-//                List<IScanIssue> issues = new ArrayList<>(1);
-//                issues.add(new CustomScanIssue(baseRequestResponse
-//                        .getHttpService(), this.helpers
-//                        .analyzeRequest(baseRequestResponse)
-//                        .getUrl(), new IHttpRequestResponse[0], "Potential Google API Key Detected", "An API Key - " + m.group(i) + " was detected, please check this url manually " + this.helpers
-//                        .analyzeRequest(baseRequestResponse)
-//                        .getUrl()
-//                        + "<br><br><b>Issue Definition</b><br><br>"
-//                        + "Google API Key is "
-//                        + "<br><br><b>Notes</b><br><br>"
-//                        + "Check on - https://maps.googleapis.com/maps/api/staticmap?center=45%2C10&zoom=7&size=400x400&key=" + m.group(i)
-//                        + "<br><b>References</b><br><br>"
-//                        + "https://github.com/streaak/keyhacks#Google-Maps-API-key"
-//                        + "<br><br><b>Development Contact Information</b><br><br>"
-//                        + "idanam@bugsec.com <br><br>", "Medium"));
-//                return issues;
-//            }
-//        }
-//        return null;
+        // Google API match
         String response = helpers.bytesToString(baseRequestResponse.getResponse());
-        Pattern p = Pattern.compile("AIzaSy[0-9A-Za-z-_]{33}");
-        Matcher m = p.matcher(response);
-        ArrayList<String> matchList = new ArrayList<>();
-        while (m.find()) {
-            for (int i = 0; i <= m.groupCount(); i++) {
-                matchList.add(m.group(i));
+        Pattern googleApiPattern = Pattern.compile("AIzaSy[0-9A-Za-z-_]{33}");
+        Matcher googleApiMatcher = googleApiPattern.matcher(response);
+
+        Pattern awsPattern = Pattern.compile("AKIA[0-9A-Z]{16}");
+        Matcher awsMatcher = awsPattern.matcher(response);
+
+        Pattern slackPattern = Pattern.compile("xox[baprs]-[0-9]{12}-[0-9]{12}-[0-9a-zA-Z]{24}");
+        Matcher slackMatcher = slackPattern.matcher(response);
+
+//        Pattern awsSecretPattern = Pattern.compile("[0-9a-zA-Z/+]{40}");
+//        Matcher awsSecretMatcher = awsSecretPattern.matcher(response);
+
+        if (googleApiMatcher.find()) {
+            ArrayList<String> matchList = new ArrayList<>();
+            while (googleApiMatcher.find()) {
+                for (int i = 0; i <= googleApiMatcher.groupCount(); i++) {
+                    matchList.add(googleApiMatcher.group(i));
                 }
             }
-        Object[] newMatchList = matchList.toArray();
-        String firstMatchToStr = (String) newMatchList[0];
-        final byte[] GREP_STRING = firstMatchToStr.getBytes();
-        Set<String> set = new HashSet<>(matchList);
-        matchList.clear();
-        matchList.addAll(set);
-        String setMatchListString = String.join("<br>", set);
-        List<int[]> matches = getMatches(baseRequestResponse.getResponse(), GREP_STRING);
-        // report the issue
-        List<IScanIssue> issues = new ArrayList<>(1);
-        issues.add(new CustomScanIssue(
-                baseRequestResponse.getHttpService(),
-                helpers.analyzeRequest(baseRequestResponse).getUrl(),
-                new IHttpRequestResponse[]{callbacks.applyMarkers(baseRequestResponse, null, matches)},
-                "Google API Key Detected",
-                "Google API key/s found: <br>" + setMatchListString
-                        + "<br><br> KeyHacks URL (only for the first key) - https://maps.googleapis.com/maps/api/staticmap?center=45%2C10&zoom=7&size=400x400&key=" + helpers.bytesToString(GREP_STRING),
-                "Low"));
-        return issues;
-//        return null;
+            Object[] newMatchList = matchList.toArray();
+            String firstMatchToStr = (String) newMatchList[0];
+            final byte[] GREP_STRING = firstMatchToStr.getBytes();
+            Set<String> set = new HashSet<>(matchList);
+            matchList.clear();
+            matchList.addAll(set);
+            String setMatchListString = String.join("<br>", set);
+            List<int[]> matches = getMatches(baseRequestResponse.getResponse(), GREP_STRING);
+            // report the issue
+            List<IScanIssue> issues = new ArrayList<>(1);
+            issues.add(new CustomScanIssue(
+                    baseRequestResponse.getHttpService(),
+                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                    new IHttpRequestResponse[]{callbacks.applyMarkers(baseRequestResponse, null, matches)},
+                    "Google API Key Detected",
+                    "Google API key/s found: <br>" + setMatchListString
+                            + "<br><br> KeyHacks URL (only for the first key) - https://maps.googleapis.com/maps/api/staticmap?center=45%2C10&zoom=7&size=400x400&key=" + helpers.bytesToString(GREP_STRING),
+                    "Low", "Certain"));
+            return issues;
+        }
+
+        // AWS Access Key ID match
+        if (awsMatcher.find()) {
+            ArrayList<String> matchList = new ArrayList<>();
+            while (awsMatcher.find()) {
+                for (int i = 0; i <= awsMatcher.groupCount(); i++) {
+                    matchList.add(awsMatcher.group(i));
+                }
+            }
+            Object[] newMatchList = matchList.toArray();
+            String firstMatchToStr = (String) newMatchList[0];
+            final byte[] GREP_STRING = firstMatchToStr.getBytes();
+            Set<String> set = new HashSet<>(matchList);
+            matchList.clear();
+            matchList.addAll(set);
+            String setMatchListString = String.join("<br>", set);
+            List<int[]> matches = getMatches(baseRequestResponse.getResponse(), GREP_STRING);
+            // report the issue
+            List<IScanIssue> issues = new ArrayList<>(1);
+            issues.add(new CustomScanIssue(
+                    baseRequestResponse.getHttpService(),
+                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                    new IHttpRequestResponse[]{callbacks.applyMarkers(baseRequestResponse, null, matches)},
+                    "AWS Access Key Detected",
+                    "AWS access key/s found: <br>" + setMatchListString
+                            + "<br><br> Test with awscli: <br> AWS_ACCESS_KEY_ID=xxxx AWS_SECRET_ACCESS_KEY=yyyy aws sts get-caller-identity" + helpers.bytesToString(GREP_STRING),
+                    "High", "Certain"));
+            return issues;
+        }
+
+        // Slack API key matcher
+        if (slackMatcher.find()) {
+            ArrayList<String> matchList = new ArrayList<>();
+            while (slackMatcher.find()) {
+                for (int i = 0; i <= slackMatcher.groupCount(); i++) {
+                    matchList.add(slackMatcher.group(i));
+                }
+            }
+            Object[] newMatchList = matchList.toArray();
+            String firstMatchToStr = (String) newMatchList[0];
+            final byte[] GREP_STRING = firstMatchToStr.getBytes();
+            Set<String> set = new HashSet<>(matchList);
+            matchList.clear();
+            matchList.addAll(set);
+            String setMatchListString = String.join("<br>", set);
+            List<int[]> matches = getMatches(baseRequestResponse.getResponse(), GREP_STRING);
+            // report the issue
+            List<IScanIssue> issues = new ArrayList<>(1);
+            issues.add(new CustomScanIssue(
+                    baseRequestResponse.getHttpService(),
+                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                    new IHttpRequestResponse[]{callbacks.applyMarkers(baseRequestResponse, null, matches)},
+                    "AWS Access Key Detected",
+                    "AWS access key/s found: <br>" + setMatchListString
+                            + "<br><br> Test with awscli: <br> AWS_ACCESS_KEY_ID=xxxx AWS_SECRET_ACCESS_KEY=yyyy aws sts get-caller-identity" + helpers.bytesToString(GREP_STRING),
+                    "High", "Certain"));
+            return issues;
+        }
+
+        // AWS Secret Key ID match
+//        if (awsSecretMatcher.find()) {
+//            ArrayList<String> matchList = new ArrayList<>();
+//            while (awsSecretMatcher.find()) {
+//                for (int i = 0; i <= awsSecretMatcher.groupCount(); i++) {
+//                    matchList.add(awsSecretMatcher.group(i));
+//                }
+//            }
+//            Object[] newMatchList = matchList.toArray();
+//            String firstMatchToStr = (String) newMatchList[0];
+//            final byte[] GREP_STRING = firstMatchToStr.getBytes();
+//            Set<String> set = new HashSet<>(matchList);
+//            matchList.clear();
+//            matchList.addAll(set);
+//            String setMatchListString = String.join("<br>", set);
+//            List<int[]> matches = getMatches(baseRequestResponse.getResponse(), GREP_STRING);
+//            // report the issue
+//            List<IScanIssue> issues = new ArrayList<>(1);
+//            issues.add(new CustomScanIssue(
+//                    baseRequestResponse.getHttpService(),
+//                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
+//                    new IHttpRequestResponse[]{callbacks.applyMarkers(baseRequestResponse, null, matches)},
+//                    "AWS Secret Key Detected",
+//                    "AWS secret key/s found: <br>" + setMatchListString
+//                            + "<br><br> Test with awscli: <br> AWS_ACCESS_KEY_ID=xxxx AWS_SECRET_ACCESS_KEY=yyyy aws sts get-caller-identity" + helpers.bytesToString(GREP_STRING),
+//                    "High", "Firm"));
+//            return issues;
+//        }
+        return null;
 
     }
 
@@ -431,6 +507,7 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
 //            }
 //
 //        }
+
         return null;
     }
 
@@ -463,6 +540,7 @@ class CustomScanIssue implements IScanIssue {
     private String name;
     private String detail;
     private String severity;
+    private String confidence;
 
     public CustomScanIssue(
             IHttpService httpService,
@@ -470,13 +548,15 @@ class CustomScanIssue implements IScanIssue {
             IHttpRequestResponse[] httpMessages,
             String name,
             String detail,
-            String severity) {
+            String severity,
+            String confidence) {
         this.httpService = httpService;
         this.url = url;
         this.httpMessages = httpMessages;
         this.name = name;
         this.detail = detail;
         this.severity = severity;
+        this.confidence = confidence;
     }
 
     @Override
@@ -501,7 +581,7 @@ class CustomScanIssue implements IScanIssue {
 
     @Override
     public String getConfidence() {
-        return "Certain";
+        return confidence;
     }
 
     @Override
