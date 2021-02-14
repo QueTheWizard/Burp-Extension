@@ -7,9 +7,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1446bb62-aac8-44ca-a1ca-ba2f8d1e1e3f" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/artifacts/BurpExtensionTemplate_jar/BurpExtensionTemplate.jar" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/BurpExtensionTemplate_jar/BurpExtensionTemplate.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/BurpExtender.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/BurpExtender.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/burp/BurpExtender.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/burp/BurpExtender.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

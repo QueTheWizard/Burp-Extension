@@ -261,7 +261,7 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
         }
 
         // Slack API key matcher
-        Pattern slackPattern = Pattern.compile("xox[baprs]-[0-9]{12}-[0-9]{12}-[0-9a-zA-Z]{24}");
+        Pattern slackPattern = Pattern.compile("(xox[p|b|o|a]-[0-9]{12}-[0-9]{12}-[0-9]{12}-[a-z0-9]{32})");
         Matcher slackMatcher = slackPattern.matcher(response);
 
         if (slackMatcher.find()) {
