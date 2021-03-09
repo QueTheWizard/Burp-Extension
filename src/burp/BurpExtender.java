@@ -53,7 +53,7 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
                 topTabs = new JTabbedPane();
                 JPanel keyHacksPanel = new JPanel();
                 keyHacksPanel.setLayout(new BoxLayout (keyHacksPanel, BoxLayout.Y_AXIS));
-                topTabs.addTab("KeyHacks", keyHacksPanel);
+//                topTabs.addTab("KeyHacks", keyHacksPanel);
                 JPanel checkListPanel = new JPanel();
                 checkListPanel.setLayout(new BoxLayout (checkListPanel, BoxLayout.Y_AXIS));
                 topTabs.addTab("Check List", checkListPanel);
@@ -79,17 +79,17 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
                     }
                 });
                 // Clear panel and button KeyHacks tab
-                JPanel clearPanel = new JPanel();
-                clearPanel.setLayout(new BoxLayout (clearPanel, BoxLayout.X_AXIS));
-                JButton clearButtonForKeyHacks = new JButton("Clear");
-                clearPanel.add(clearButtonForKeyHacks);
-                keyHacksPanel.add(clearPanel);
-                clearButtonForKeyHacks.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent ae) {
-                        apiKeyTextField.setText(null);
-                    }
-                });
+//                JPanel clearPanel = new JPanel();
+//                clearPanel.setLayout(new BoxLayout (clearPanel, BoxLayout.X_AXIS));
+//                JButton clearButtonForKeyHacks = new JButton("Clear");
+//                clearPanel.add(clearButtonForKeyHacks);
+//                keyHacksPanel.add(clearPanel);
+//                clearButtonForKeyHacks.addActionListener(new ActionListener() {
+//                    @Override
+//                    public void actionPerformed(ActionEvent ae) {
+//                        apiKeyTextField.setText(null);
+//                    }
+//                });
 
                 // Test - JPanel from other class file
                 JComponent checkListPanel1 = new CheckListPanel();
@@ -320,6 +320,37 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
                     "SendGrid API Key Detected",
                     "SendGrid api key/s found: <br>" + setMatchListString,
                     "High", "Firm"));
+            return issues;
+        }
+
+        // Private key Matcher
+        Pattern privateKeyPattern = Pattern.compile("(-----(\\bBEGIN\\b|\\bEND\\b) ((\\bRSA PRIVATE KEY\\b)|(\\bCERTIFICATE\\b)|(\\bPGP PRIVATE KEY BLOCK\\b)|(\\bOPENSSH PRIVATE KEY\\b))-----)");
+        Matcher privateKeyMatcher = privateKeyPattern.matcher(response);
+
+        if (privateKeyMatcher.find()) {
+            ArrayList<String> matchList = new ArrayList<>();
+            while (privateKeyMatcher.find()) {
+                for (int i = 0; i <= privateKeyMatcher.groupCount(); i++) {
+                    matchList.add(privateKeyMatcher.group(i));
+                }
+            }
+            Object[] newMatchList = matchList.toArray();
+            String firstMatchToStr = (String) newMatchList[0];
+            final byte[] GREP_STRING = firstMatchToStr.getBytes();
+            Set<String> set = new HashSet<>(matchList);
+            matchList.clear();
+            matchList.addAll(set);
+            String setMatchListString = String.join("<br>", set);
+            List<int[]> matches = getMatches(baseRequestResponse.getResponse(), GREP_STRING);
+            // report the issue
+            List<IScanIssue> issues = new ArrayList<>(1);
+            issues.add(new CustomScanIssue(
+                    baseRequestResponse.getHttpService(),
+                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                    new IHttpRequestResponse[]{callbacks.applyMarkers(baseRequestResponse, null, matches)},
+                    "Cryptographic Private Key Detected",
+                    "RSA/PGP/OPENSSH private key/s found: <br>" + setMatchListString,
+                    "Medium", "Firm"));
             return issues;
         }
         return null;

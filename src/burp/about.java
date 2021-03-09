@@ -28,22 +28,37 @@ public class about {
         JLabel jLabel6 = new JLabel();
         JLabel jLabel7 = new JLabel();
         JLabel jLabel8 = new JLabel();
+        JLabel jLabel9 = new JLabel();
+        JLabel jLabel10 = new JLabel();
+        JLabel jLabel11 = new JLabel();
+        JLabel jLabel12 = new JLabel();
+        JLabel jLabel13 = new JLabel();
 
         jLabel1.setText("Name");
 
         jLabel2.setText("Version");
 
-        jLabel3.setText("Source");
+        jLabel3.setText("Website");
 
         jLabel4.setText("Author");
 
         jLabel5.setText("BugSec Application Security Tests");
 
-        jLabel6.setText("1.0");
+        jLabel6.setText("1.1");
 
         jLabel7.setText("https://bugsec.com");
 
         jLabel8.setText("Idan Amitay");
+
+        jLabel9.setText("Overview");
+
+        jLabel10.setText("Bugsec Application Security Tests performs passive scans to detect sensitive information such as Google API keys, AWS Access Keys, Slack API keys, SendGrid API keys, Various cryptographic keys.");
+
+        jLabel11.setText("");
+
+        jLabel12.setText("Additionally, the extension provides a UI for BugSec’s applicative PT tests.");
+
+        jLabel13.setText("Made in Israel ❤");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -55,9 +70,14 @@ public class about {
                                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(jLabel2)
                                         .addComponent(jLabel3)
-                                        .addComponent(jLabel4))
+                                        .addComponent(jLabel4)
+                                        .addComponent(jLabel9)
+                                        .addComponent(jLabel11))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel13)
+                                        .addComponent(jLabel12)
+                                        .addComponent(jLabel10)
                                         .addComponent(jLabel8)
                                         .addComponent(jLabel7)
                                         .addComponent(jLabel6)
@@ -83,6 +103,17 @@ public class about {
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(jLabel4)
                                         .addComponent(jLabel8))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel9)
+                                        .addComponent(jLabel10))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel11)
+                                        .addComponent(jLabel12))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel13))
                                 .addContainerGap(15, Short.MAX_VALUE))
         );
         topTabs.addTab("About", jPanel1);
