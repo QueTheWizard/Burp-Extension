@@ -6,17 +6,8 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1446bb62-aac8-44ca-a1ca-ba2f8d1e1e3f" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/artifacts/BurpExtensionTemplate_jar/BurpExtensionTemplate.jar" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/BurpExtensionTemplate_jar/BurpExtensionTemplate.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/BurpExtender.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/BurpExtender.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/CheckListPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/CheckListPanel$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/CheckListPanel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/CheckListPanel$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/CheckListPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/CheckListPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/CustomScanIssue.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/BurpExtensionTemplate/burp/CustomScanIssue.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/burp/BurpExtender.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/burp/BurpExtender.java" afterDir="false" />
+    <list default="true" id="1446bb62-aac8-44ca-a1ca-ba2f8d1e1e3f" name="Default" comment="r">
       <change beforePath="$PROJECT_DIR$/src/burp/CheckListPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/burp/CheckListPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/burp/about.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/burp/about.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -169,6 +160,14 @@
       <updated>1487963879306</updated>
       <workItem from="1609678223680" duration="493000" />
     </task>
+    <task id="LOCAL-00001" summary="r">
+      <created>1615466484335</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1615466484335</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -185,6 +184,10 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="r" />
+    <option name="LAST_COMMIT_MESSAGE" value="r" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />

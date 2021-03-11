@@ -201,7 +201,7 @@ public class CheckListPanel extends JPanel {
         // Clear panel
         JPanel clearPanel = new JPanel();
         clearPanel.setLayout(new BoxLayout (clearPanel, BoxLayout.X_AXIS));
-        JButton clearButtonForKeyHacks = new JButton("Clearr");
+        JButton clearButtonForKeyHacks = new JButton("Clear");
         clearPanel.add(clearButtonForKeyHacks);
         // clear button action
         clearButtonForKeyHacks.addActionListener(new ActionListener() {
