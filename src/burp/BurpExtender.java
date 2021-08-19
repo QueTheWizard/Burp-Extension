@@ -40,7 +40,7 @@ public class BurpExtender implements IBurpExtender, ITab, IScannerCheck {
         this.mStdOut = new PrintWriter(callbacks.getStdout(), true);
         this.mStdErr = new PrintWriter(callbacks.getStderr(), true);
 
-        callbacks.setExtensionName("BugSec Tests Automation");
+        callbacks.setExtensionName("Secrets Sniffer");
 
         // register ourselves as a custom scanner check
         callbacks.registerScannerCheck(this);
