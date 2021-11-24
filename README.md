@@ -1,5 +1,7 @@
 # **Secrets Sniffer**
 
+[![Build status](https://github.com/QueTheWizard/Burp-Secrets-Sniffer/workflows/Build/badge.svg)](https://github.com/QueTheWizard/Burp-Secrets-Sniffer/actions?query=workflow%3ABuild)
+
 Secrets Sniffer is a BurpSuite extension that passivly scans all HTTP responses in Burp and looks for sensitive information (such as Google API key, AWS access keys, Slack API keys, etc.) in them.
 
 **Usage:**  
